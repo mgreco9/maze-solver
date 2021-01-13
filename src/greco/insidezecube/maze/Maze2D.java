@@ -40,6 +40,9 @@ public class Maze2D extends Maze {
 	 */
 	private boolean[][] setMazeConfiguration(String modelPath) throws MazeInitializationException {
 		File layoutFile = new File(modelPath);
+		
+		this.name = layoutFile.getName().split("\\.")[0];
+		
 		BufferedReader layoutFileReader = null;
 		try {
 			//Open BufferedReader
@@ -69,7 +72,7 @@ public class Maze2D extends Maze {
 				if (line.length() != this.width) {
 					throw new DimensionInitializationException("Dimension error : line "+(row+1)+" with width "+line.length()+" mismatch expected width ("+this.width+")");
 				}
-				for (int col = 0; col < this.length; col++) {
+				for (int col = 0; col < this.width; col++) {
 					//IS EMPTY PATH
 					if(line.charAt(col) == LAYOUTPATHENCODING) {
 						layout[row][col] = true;

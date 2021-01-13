@@ -1,6 +1,9 @@
 package greco.insidezecube.maze;
 
 import java.awt.EventQueue;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import greco.insidezecube.exception.MazeInitializationException;
 import greco.insidezecube.gui.MainGui;
@@ -43,8 +46,29 @@ public class Main {
 		}
 	}
 	
+	public static void exportMaze(String path) {
+		Pair<Integer, Integer> mazeDimension = getMazeDimension();
+		String mazeText = myMaze.toString();
+		
+		FileWriter myWriter;
+		try {
+			myWriter = new FileWriter("layouts/"+path);
+			myWriter.write(mazeDimension.toString());
+			myWriter.write("\n");
+			myWriter.write(mazeText);
+			myWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public static Pair<Integer,Integer> getMazeDimension(){
 		return new Pair<Integer, Integer>(myMaze.getLength(),myMaze.getWidth());
+	}
+	
+	public static String getMazeName() {
+		return myMaze.getName();
 	}
 	
 	public static boolean[][] getPrintableMaze(){

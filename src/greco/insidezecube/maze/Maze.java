@@ -12,9 +12,10 @@ public abstract class Maze {
 	protected final char LAYOUTPATHENCODING = '.';
 	
 	protected int length;
-
 	protected int width;
 	protected int height;
+	
+	protected String name;
 	
 	public Maze() {
 		
@@ -30,6 +31,10 @@ public abstract class Maze {
 
 	public int getHeight() {
 		return height;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	public abstract String toString();

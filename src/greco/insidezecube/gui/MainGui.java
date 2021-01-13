@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,13 +21,29 @@ import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.JTable;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JComboBox;
+import java.awt.Component;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+
+import java.awt.GridLayout;
+import javax.swing.JLabel;
+import java.awt.Insets;
+import java.awt.TextField;
+import java.awt.Label;
+import java.awt.Font;
 
 public class MainGui extends JFrame {
 
 	private JPanel contentPane;
 	private static boolean mouseIsPressed = false;
+	String mazeName;
+	Pair<Integer, Integer> mazeDimension;
 	
 	public static enum CellType {
     	WALL, FRONTIER, UNEXPLORED, EXPLORED
@@ -36,6 +53,9 @@ public class MainGui extends JFrame {
 	 * Create the frame.
 	 */
 	public MainGui() {
+		mazeName = Main.getMazeName();
+		mazeDimension = Main.getMazeDimension();
+		
 		setTitle("InsideZeCube");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 900, 650);
@@ -44,17 +64,116 @@ public class MainGui extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
+		mazePane mazePanel = new mazePane();
+		contentPane.add(mazePanel, BorderLayout.CENTER);
+		
 		JPanel buttonPanel = new JPanel();
 		contentPane.add(buttonPanel, BorderLayout.SOUTH);
+		buttonPanel.setLayout(new GridLayout(2, 2, 2, 2));
 		
-		JButton btnNewButton = new JButton("New button");
-		buttonPanel.add(btnNewButton);
+		JPanel importPane = new JPanel();
+		buttonPanel.add(importPane);
+		importPane.setLayout(new BoxLayout(importPane, BoxLayout.X_AXIS));
 		
-		JButton btnNewButton_1 = new JButton("New button");
-		buttonPanel.add(btnNewButton_1);
+		Component horizontalGlue = Box.createHorizontalGlue();
+		importPane.add(horizontalGlue);
 		
-		JPanel mazePanel = new mazePane();
-		contentPane.add(mazePanel, BorderLayout.CENTER);
+		JComboBox comboBox = new JComboBox();
+		importPane.add(comboBox);
+		File layoutDir = new File("layouts/");
+		for (File child : layoutDir.listFiles()) {
+			if (child.isFile()) {
+				String layoutName = child.getName();
+				layoutName = (layoutName.split("\\."))[0];
+				
+				comboBox.addItem(layoutName);
+			}
+		}
+		comboBox.setSelectedItem(mazeName);
+		
+		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
+		importPane.add(horizontalStrut_2);
+		
+		JButton importMazeButton = new JButton("import maze");
+		importPane.add(importMazeButton);
+		
+		Component horizontalStrut_3 = Box.createHorizontalStrut(30);
+		importPane.add(horizontalStrut_3);
+		
+		JPanel randomMazePane = new JPanel();
+		buttonPanel.add(randomMazePane);
+		
+		Label rowLabel = new Label("rows:");
+		randomMazePane.add(rowLabel);
+		
+		TextField nbRowField = new TextField();
+		nbRowField.setText(mazeDimension.first.toString());
+		randomMazePane.add(nbRowField);
+		
+		Label colLabel = new Label("col:");
+		randomMazePane.add(colLabel);
+		
+		TextField nbColField = new TextField();
+		nbColField.setText(mazeDimension.second.toString());
+		randomMazePane.add(nbColField);
+		
+		Component horizontalStrut = Box.createHorizontalStrut(20);
+		randomMazePane.add(horizontalStrut);
+		
+		JButton btnNewButton = new JButton("Randomize");
+		randomMazePane.add(btnNewButton);
+		
+		JPanel exportPane = new JPanel();
+		buttonPanel.add(exportPane);
+		exportPane.setLayout(new BoxLayout(exportPane, BoxLayout.X_AXIS));
+		
+		Component horizontalGlue_1 = Box.createHorizontalGlue();
+		exportPane.add(horizontalGlue_1);
+		
+		Label label = new Label("Name:");
+		label.setAlignment(Label.RIGHT);
+		exportPane.add(label);
+		
+		TextField mazeTitle = new TextField();
+		mazeTitle.setFont(new Font("Dialog", Font.PLAIN, 20));
+		mazeTitle.setText(mazeName);
+		exportPane.add(mazeTitle);
+		
+		Component horizontalStrut_1 = Box.createHorizontalStrut(20);
+		exportPane.add(horizontalStrut_1);
+		
+		JButton exportMazeButton = new JButton("export maze");
+		exportPane.add(exportMazeButton);
+		
+		Component horizontalStrut_4 = Box.createHorizontalStrut(30);
+		exportPane.add(horizontalStrut_4);
+		
+		
+		importMazeButton.addActionListener(new ActionListener() {
+			@Override
+		    public void actionPerformed(ActionEvent e) {
+				mazeName = (String)comboBox.getSelectedItem();
+		        Main.instantiateMaze(mazeName+".txt");
+		        mazePanel.updateMaze();
+		        
+		        mazeDimension = Main.getMazeDimension();
+		        
+		        nbRowField.setText(mazeDimension.first.toString());
+		        nbColField.setText(mazeDimension.second.toString());
+		        mazeTitle.setText(mazeName);
+		    }
+		});
+		
+		exportMazeButton.addActionListener(new ActionListener() {
+			@Override
+		    public void actionPerformed(ActionEvent e) {
+				mazeName = mazeTitle.getText();
+				Main.exportMaze(mazeName + ".txt");
+				
+				if(((DefaultComboBoxModel)comboBox.getModel()).getIndexOf(mazeName) == -1)
+					comboBox.addItem(mazeName);
+		    }
+		});
 		
 	}
 	
@@ -68,6 +187,16 @@ public class MainGui extends JFrame {
 
 	        setDimension();
 	        setMaze();
+        }
+         
+        public void updateMaze() {
+            this.removeAll();
+            
+        	setDimension();
+	        setMaze();
+	        
+	        revalidate();
+	        repaint();
         }
 	        
         private void setDimension() {

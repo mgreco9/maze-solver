@@ -3,6 +3,7 @@ package greco.insidezecube.utils;
 public class Pair<T,Y>{
     public T first;
     public Y second;
+    
     public Pair(T f, Y s){
         first = f;
         second = s;
@@ -16,5 +17,16 @@ public class Pair<T,Y>{
     	}
     	
     	return false;
+    }
+    
+    @Override
+    public String toString() {
+    	String s ="";
+    	
+    	s += first.toString();
+    	s += " ";
+    	s += second.toString();
+    	
+    	return s;
     }
 }
